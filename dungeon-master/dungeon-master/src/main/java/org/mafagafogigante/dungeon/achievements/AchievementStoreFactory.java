@@ -81,7 +81,14 @@ public class AchievementStoreFactory {
     String filename = ResourceNameResolver.resolveName(DungeonResource.ACHIEVEMENTS);
     JsonObject jsonObject = JsonObjectFactory.makeJsonObject(filename);
     for (JsonValue achievementValue : jsonObject.get("achievements").asArray()) {
-      JsonObject achievementObject = achievementValue.asObject();
+      store.addAchievement(createAchievementBuilder(achievementValue).createAchievement());
+    }
+    DungeonLogger.info("Loaded " + store.getAchievements().size() + " achievements.");
+  }
+  
+  private static  AchievementBuilder createAchievementBuilder(JsonValue achievementValue) 
+  {
+	  JsonObject achievementObject = achievementValue.asObject();
       AchievementBuilder builder = new AchievementBuilder();
       builder.setId(achievementObject.get("id").asString());
       builder.setName(achievementObject.get("name").asString());
@@ -90,31 +97,8 @@ public class AchievementStoreFactory {
       JsonValue battleRequirements = achievementObject.get("battleRequirements");
       if (battleRequirements != null) {
         for (JsonValue requirementValue : battleRequirements.asArray()) {
-          JsonObject requirementObject = requirementValue.asObject();
-          JsonObject queryObject = requirementObject.get("query").asObject();
-          BattleStatisticsQuery query = new BattleStatisticsQuery();
-          JsonValue idValue = queryObject.get("id");
-          if (idValue != null) {
-            query.setId(new Id(idValue.asString()));
-          }
-          JsonValue typeValue = queryObject.get("type");
-          if (typeValue != null) {
-            query.setType(typeValue.asString());
-          }
-          JsonValue causeOfDeathValue = queryObject.get("causeOfDeath");
-          if (causeOfDeathValue != null) {
-            JsonObject causeOfDeathObject = causeOfDeathValue.asObject();
-            TypeOfCauseOfDeath type = TypeOfCauseOfDeath.valueOf(causeOfDeathObject.get("type").asString());
-            Id id = new Id(causeOfDeathObject.get("id").asString());
-            query.setCauseOfDeath(new CauseOfDeath(type, id));
-          }
-          JsonValue partOfDayValue = queryObject.get("partOfDay");
-          if (partOfDayValue != null) {
-            query.setPartOfDay(PartOfDay.valueOf(partOfDayValue.asString()));
-          }
-          int count = requirementObject.get("count").asInt();
-          BattleStatisticsRequirement requirement = new BattleStatisticsRequirement(query, count);
-          builder.addBattleStatisticsRequirement(requirement);
+          
+          builder.addBattleStatisticsRequirement(createBattleStatisticsRequirement(requirementValue));
         }
       }
       JsonValue explorationRequirements = achievementObject.get("explorationRequirements");
@@ -139,9 +123,35 @@ public class AchievementStoreFactory {
           builder.setDiscoveryCount(discovery.asObject().get("count").asInt());
         }
       }
-      store.addAchievement(builder.createAchievement());
-    }
-    DungeonLogger.info("Loaded " + store.getAchievements().size() + " achievements.");
+      return builder;
   }
 
+  private static BattleStatisticsRequirement createBattleStatisticsRequirement(JsonValue requirementValue)
+  {
+	  JsonObject requirementObject = requirementValue.asObject();
+      JsonObject queryObject = requirementObject.get("query").asObject();
+      BattleStatisticsQuery query = new BattleStatisticsQuery();
+      JsonValue idValue = queryObject.get("id");
+      if (idValue != null) {
+        query.setId(new Id(idValue.asString()));
+      }
+      JsonValue typeValue = queryObject.get("type");
+      if (typeValue != null) {
+        query.setType(typeValue.asString());
+      }
+      JsonValue causeOfDeathValue = queryObject.get("causeOfDeath");
+      if (causeOfDeathValue != null) {
+        JsonObject causeOfDeathObject = causeOfDeathValue.asObject();
+        TypeOfCauseOfDeath type = TypeOfCauseOfDeath.valueOf(causeOfDeathObject.get("type").asString());
+        Id id = new Id(causeOfDeathObject.get("id").asString());
+        query.setCauseOfDeath(new CauseOfDeath(type, id));
+      }
+      JsonValue partOfDayValue = queryObject.get("partOfDay");
+      if (partOfDayValue != null) {
+        query.setPartOfDay(PartOfDay.valueOf(partOfDayValue.asString()));
+      }
+      int count = requirementObject.get("count").asInt();
+      BattleStatisticsRequirement requirement = new BattleStatisticsRequirement(query, count);
+      return requirement;
+  }
 }
