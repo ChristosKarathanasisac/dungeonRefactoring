@@ -69,4 +69,40 @@ public class Point implements Serializable {
   public String toString() {
     return String.format("{%d, %d, %d}", getX(), getY(), getZ());
   }
+
+public void expand(WorldGenerator worldGenerator) {
+    worldGenerator.data.getRiverGenerator().expand(this, worldGenerator.data.getChunkSide());
+    Point currentPoint;
+    LocationPreset currentLocationPreset = null;
+    int remainingLocationsOfCurrentPreset = 0;
+    int pX = getX();
+    int pY = getY();
+    // Get the closest smaller chunkSide multiple of x and y.
+    // For instance, if chunkSide == 5, x == -2 and y == 1, then it makes xStart == -5 and yStart == 0.
+    int xStart = pX < 0 ? worldGenerator.data.getChunkSide() * (((pX + 1) / worldGenerator.data.getChunkSide()) - 1) : worldGenerator.data.getChunkSide() * (pX / worldGenerator.data.getChunkSide());
+    int yStart = pY < 0 ? worldGenerator.data.getChunkSide() * (((pY + 1) / worldGenerator.data.getChunkSide()) - 1) : worldGenerator.data.getChunkSide() * (pY / worldGenerator.data.getChunkSide());
+    for (int x = xStart; x < xStart + worldGenerator.data.getChunkSide(); x++) {
+      for (int y = yStart; y < yStart + worldGenerator.data.getChunkSide(); y++) {
+        currentPoint = new Point(x, y, 0);
+        if (!worldGenerator.data.getWorld().alreadyHasLocationAt(currentPoint)) {
+          if (worldGenerator.data.getRiverGenerator().isRiver(currentPoint)) {
+            worldGenerator.data.getWorld().addLocation(worldGenerator.createRandomRiverLocation(currentPoint), currentPoint);
+          } else if (worldGenerator.data.getRiverGenerator().isBridge(currentPoint)) {
+            worldGenerator.data.getWorld().addLocation(worldGenerator.createRandomBridgeLocation(currentPoint), currentPoint);
+          } else if (worldGenerator.data.getRiverGenerator().isRiverside(currentPoint)) {
+            worldGenerator.data.getWorld().addLocation(worldGenerator.createRiversideLocation(currentPoint), currentPoint);
+          } else if (worldGenerator.data.getDungeonDistributor().rollForDungeon(currentPoint)) {
+            worldGenerator.data.getDungeonCreator().createDungeon(worldGenerator.data.getWorld(), currentPoint);
+          } else {
+            if (currentLocationPreset == null || remainingLocationsOfCurrentPreset == 0) {
+              currentLocationPreset = WorldGenerator.getRandomLandLocationPreset();
+              remainingLocationsOfCurrentPreset = currentLocationPreset.getBlobSize();
+            }
+            worldGenerator.data.getWorld().addLocation(new Location(currentLocationPreset, worldGenerator.data.getWorld(), currentPoint), currentPoint);
+            remainingLocationsOfCurrentPreset--;
+          }
+        }
+      }
+    }
+  }
 }

@@ -119,7 +119,7 @@ public class World implements Serializable {
   @NotNull
   public Location getLocation(@NotNull Point point) {
     if (!locations.containsKey(point)) {
-      generator.expand(point);
+      point.expand(generator);
     }
     return locations.get(point);
   }
@@ -157,7 +157,7 @@ public class World implements Serializable {
       return true;
     } else {
       if (point.getZ() == 0) {
-        generator.expand(point);
+        point.expand(generator);
       }
       return alreadyHasLocationAt(point);
     }
