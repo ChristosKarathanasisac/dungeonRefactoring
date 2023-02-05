@@ -61,13 +61,13 @@ public class AchievementStoreFactory {
     return store;
   }
 
-  private static CounterMap<Id> idCounterMapFromJsonObject(JsonObject jsonObject) {
+  /*private static CounterMap<Id> idCounterMapFromJsonObject(JsonObject jsonObject) {
     CounterMap<Id> counterMap = new CounterMap<>();
     for (Member member : jsonObject) {
       counterMap.incrementCounter(new Id(member.getName()), member.getValue().asInt());
     }
     return counterMap;
-  }
+  }*/
 
   /**
    * Loads all provided achievements into the provided AchievementStore.
@@ -81,12 +81,16 @@ public class AchievementStoreFactory {
     String filename = ResourceNameResolver.resolveName(DungeonResource.ACHIEVEMENTS);
     JsonObject jsonObject = JsonObjectFactory.makeJsonObject(filename);
     for (JsonValue achievementValue : jsonObject.get("achievements").asArray()) {
-      store.addAchievement(createAchievementBuilder(achievementValue).createAchievement());
+      AchievementBuilder builder = new AchievementBuilder();
+      store.addAchievement(builder.createAchievementBuilderByJsonValue(achievementValue).createAchievement());
     }
     DungeonLogger.info("Loaded " + store.getAchievements().size() + " achievements.");
   }
   
-  private static  AchievementBuilder createAchievementBuilder(JsonValue achievementValue) 
+  
+ 
+  
+ /* private static  AchievementBuilder createAchievementBuilder(JsonValue achievementValue) 
   {
 	  JsonObject achievementObject = achievementValue.asObject();
       AchievementBuilder builder = new AchievementBuilder();
@@ -154,4 +158,5 @@ public class AchievementStoreFactory {
       BattleStatisticsRequirement requirement = new BattleStatisticsRequirement(query, count);
       return requirement;
   }
+  */
 }
