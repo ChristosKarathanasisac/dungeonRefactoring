@@ -28,8 +28,6 @@ import org.mafagafogigante.dungeon.game.World;
 import org.mafagafogigante.dungeon.io.Sleeper;
 import org.mafagafogigante.dungeon.io.Version;
 import org.mafagafogigante.dungeon.io.Writer;
-import org.mafagafogigante.dungeon.spells.Spell;
-import org.mafagafogigante.dungeon.spells.SpellData;
 import org.mafagafogigante.dungeon.stats.Statistics;
 import org.mafagafogigante.dungeon.util.DungeonMath;
 import org.mafagafogigante.dungeon.util.Matches;
@@ -627,7 +625,7 @@ public class Hero extends Creature {
           string.append("\n\n");
           Writer.write(string);
           if (book.isDidactic()) {
-            learnSpell(book);
+            book.learnSpell(this);
           }
         } else {
           HeroUtils.writeNoLongerInInventoryMessage(selectedItem);
@@ -635,24 +633,6 @@ public class Hero extends Creature {
       } else {
         Writer.write("You can only read books.");
       }
-    }
-  }
-
-  /**
-   * Attempts to learn a spell from a BookComponent object. As a precondition, book must be didactic (teach a spell).
-   *
-   * @param book a BookComponent that returns true to isDidactic, not null
-   */
-  private void learnSpell(@NotNull BookComponent book) {
-    if (!book.isDidactic()) {
-      throw new IllegalArgumentException("book should be didactic.");
-    }
-    Spell spell = SpellData.getSpellMap().get(book.getSpellId());
-    if (getSpellcaster().knowsSpell(spell)) {
-      Writer.write("You already knew " + spell.getName().getSingular() + ".");
-    } else {
-      getSpellcaster().learnSpell(spell);
-      Writer.write("You learned " + spell.getName().getSingular() + ".");
     }
   }
 

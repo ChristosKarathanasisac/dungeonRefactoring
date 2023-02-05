@@ -1,8 +1,11 @@
 package org.mafagafogigante.dungeon.entity.items;
 
+import org.mafagafogigante.dungeon.entity.creatures.Hero;
 import org.mafagafogigante.dungeon.game.Id;
 import org.mafagafogigante.dungeon.io.Version;
-
+import org.mafagafogigante.dungeon.io.Writer;
+import org.mafagafogigante.dungeon.spells.Spell;
+import org.mafagafogigante.dungeon.spells.SpellData;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -67,6 +70,24 @@ public class BookComponent implements Serializable {
     String representation = String.format("This book teaches %s.", isDidactic() ? spellId : "nothing");
     representation += " " + "Text: " + text;
     return representation;
+  }
+
+/**
+   * Attempts to learn a spell from a BookComponent object. As a precondition, book must be didactic (teach a spell).
+   *
+   * @param hero TODO
+   */
+  public void learnSpell(Hero hero) {
+    if (!isDidactic()) {
+      throw new IllegalArgumentException("book should be didactic.");
+    }
+    Spell spell = SpellData.getSpellMap().get(getSpellId());
+    if (hero.getSpellcaster().knowsSpell(spell)) {
+      Writer.write("You already knew " + spell.getName().getSingular() + ".");
+    } else {
+      hero.getSpellcaster().learnSpell(spell);
+      Writer.write("You learned " + spell.getName().getSingular() + ".");
+    }
   }
 
 }

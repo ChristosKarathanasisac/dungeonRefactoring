@@ -143,18 +143,18 @@ public class Observer implements Serializable {
     }
   }
 
-  private void lookToVerticalDirection(DungeonString dungeonString, World world, Point up, String adverb) {
-    if (world.alreadyHasLocationAt(up)) {
-      dungeonString.append(adverb);
-      dungeonString.append(" you see ");
-      dungeonString.append(world.getLocation(up).getName().getSingular());
-      dungeonString.append(".\n");
+  private void lookToVerticalDirection(LookToVerticalDirectionParameter parameterObject) {
+    if (parameterObject.world.alreadyHasLocationAt(parameterObject.up)) {
+      parameterObject.dungeonString.append(parameterObject.adverb);
+      parameterObject.dungeonString.append(" you see ");
+      parameterObject.dungeonString.append(parameterObject.world.getLocation(parameterObject.up).getName().getSingular());
+      parameterObject.dungeonString.append(".\n");
     }
   }
 
   private void lookUpwardsAndDownwards(DungeonString dungeonString, World world, Point point) {
-    lookToVerticalDirection(dungeonString, world, new Point(point, Direction.UP), "Upwards");
-    lookToVerticalDirection(dungeonString, world, new Point(point, Direction.DOWN), "Downwards");
+    lookToVerticalDirection(new LookToVerticalDirectionParameter(dungeonString, world, new Point(point, Direction.UP), "Upwards"));
+    lookToVerticalDirection(new LookToVerticalDirectionParameter(dungeonString, world, new Point(point, Direction.DOWN), "Downwards"));
   }
 
   /**
